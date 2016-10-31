@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html>
-     <head>
-      <title>我是这样写博客的</title>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-      <style type="text/css">
-      /*! normalize.css v2.1.3 | MIT License | git.io/normalize */
+/*! normalize.css v2.1.3 | MIT License | git.io/normalize */
 
 article, aside, details, figcaption, figure, footer, header, hgroup, main, nav, section, summary {
   display: block;
@@ -512,7 +506,7 @@ code, kbd, pre, samp {
 code {
   padding: 2px 4px;
   font-size: 90%;
-  color: #c7254e;
+  color: #17900a;
   white-space: nowrap;
   background-color: #f9f2f4;
   border-radius: 4px;
@@ -5725,32 +5719,3 @@ margin-right: 10px;
 	content: "# ";
 	color: #42C994;
 }
-
-      </style>
-      </head>
-      <body  class="basic">
-        <div class="container">
-            <div class="row">
-              <article class="col-md-12 no-featured-image post-3507 post type-post status-publish format-standard hentry category-skills tag-83 tag-620 tag-383 tag-286" >
-                <h1 class="entry-title">我是这样写博客的</h1>
-                <div class="entry-content">
-                  
-
-<p>我发现，不管我写微信公众号哪篇文章，都会有读者在留言区问我，我的文章是用什么编辑器排版的，我的回答都是，市面上的微信排版器我都不用，不是因为它们设计得不好看，而是所有的排版器都不符合写作的规律。</p>
-
-<p>这篇文章，会告诉你我的文章都是如何排版出来的。</p>
-
-<h2>排版不仅是锦上添花</h2>
-
-<p>2006 年，我开始写博客，当时信奉的是内容是核心，排版并不重要。但自从 2008 年看了一些与<a href="https://kenengba.com/post/476.html">屏幕阅读体验</a>相关的研究报告后，我开始重视排版，开始在博客上尝试不同的排版方式。不能说我的排版是最好看的，但在小圈子内，是受到关注的。如果你在 Google 搜索「可能吧 排版」，可以找到不少别人研究当年我如何排版的文章。</p>
-
-<p>我在「有可能学院」里有一个主讲课程《微信内容运营》，在这个课程里我定义了一种新岗位：<strong>内容经理</strong>。</p>
-
-<h3>不要涉及完全不了解的话题</h3>
-                </div>
-              </article>
-            </div>
-          </div>
-     </body>
-</html>
-  

@@ -1,40 +1,73 @@
+#! /usr/bin/env node
+
 const fs = require('fs');
 const cheerio = require('cheerio')
-
+const markdown = require( "markdown" ).markdown;
 
 //读取html页面
-fs.readFile('./public/test.html', 'utf8', (err, data) => {
+fs.readFile('./public/article.md', 'utf8', (err, data) => {
   if (err) throw err;
-  let $ = cheerio.load(data)
-  $('style').remove();
+
+
+
+  let html_content = markdown.toHTML(data);
+
+
+
+  //console.log("html_content",html_content);
+
+  let $ = cheerio.load(html_content,{
+      decodeEntities: false
+  })
+
+  //console.log("data",$.html());
+
   //读取模板样式
-  fs.readFile('./src/style.css', 'utf8', (error, result) => {
+  fs.readFile('./src/css/01/style.css', 'utf8', (error, result) => {
     if (error) throw error;
     let W = cheerio.load(result)
-    $("head").append(W.html())
+
+
+
     let title = $('h1').text()
     $('h1').remove();
-    let content = $('body').html()
+    let content = $.html()
 
-    let body = `
-    <body  class="basic">
-      <div class="container">
-          <div class="row">
-            <article class="col-md-8 no-featured-image post-3507 post type-post status-publish format-standard hentry category-skills tag-83 tag-620 tag-383 tag-286" >
-              <h1 class="entry-title">${title}</h1>
-              <div class="entry-content">
-                ${content}
-              </div>
-            </article>
-          </div>
-        </div>
-   </body>
-  `
     //移除之前的body
     $("body").remove();
-    $("html").append(body)
+
+    let html = `<!DOCTYPE html>
+<html>
+     <head>
+      <title>${title}</title>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+      <link href="//cdn.bootcss.com/highlight.js/9.7.0/styles/mono-blue.min.css" rel="stylesheet">
+      <style type="text/css">
+      ${W.text()}
+      </style>
+      </head>
+      <body  class="basic">
+        <div class="container">
+            <div class="row">
+              <article class="col-md-12 no-featured-image post-3507 post type-post status-publish format-standard hentry category-skills tag-83 tag-620 tag-383 tag-286" >
+                <h1 class="entry-title">${title}</h1>
+                <div class="entry-content">
+                  ${content}
+                </div>
+              </article>
+            </div>
+          </div>
+     </body>
+     <script src="http://cdn.bootcss.com/highlight.js/8.0/highlight.min.js" charset="utf-8"></script>
+     <script charset="utf-8">
+     hljs.initHighlightingOnLoad();
+     </script>
+</html>
+  `
+
+    //console.log('success',html);
     //写入到文件
-    fs.writeFile('article.html', $.html(), (err) => {
+    fs.writeFile(`${title}.html`,html, 'utf8',(err) => {
       if (err) throw err;
       console.log('success');
     });

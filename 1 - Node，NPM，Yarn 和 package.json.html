@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
      <head>
-      <title>我是这样写博客的</title>
+      <title>1 - Node，NPM，Yarn 和 package.json</title>
       <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+      <link href="//cdn.bootcss.com/highlight.js/9.7.0/styles/mono-blue.min.css" rel="stylesheet">
       <style type="text/css">
       /*! normalize.css v2.1.3 | MIT License | git.io/normalize */
 
@@ -512,7 +513,7 @@ code, kbd, pre, samp {
 code {
   padding: 2px 4px;
   font-size: 90%;
-  color: #c7254e;
+  color: #17900a;
   white-space: nowrap;
   background-color: #f9f2f4;
   border-radius: 4px;
@@ -5732,25 +5733,67 @@ margin-right: 10px;
         <div class="container">
             <div class="row">
               <article class="col-md-12 no-featured-image post-3507 post type-post status-publish format-standard hentry category-skills tag-83 tag-620 tag-383 tag-286" >
-                <h1 class="entry-title">我是这样写博客的</h1>
+                <h1 class="entry-title">1 - Node，NPM，Yarn 和 package.json</h1>
                 <div class="entry-content">
                   
 
-<p>我发现，不管我写微信公众号哪篇文章，都会有读者在留言区问我，我的文章是用什么编辑器排版的，我的回答都是，市面上的微信排版器我都不用，不是因为它们设计得不好看，而是所有的排版器都不符合写作的规律。</p>
+<h2>第一节</h2>
 
-<p>这篇文章，会告诉你我的文章都是如何排版出来的。</p>
+<p>在本节中，我们将学习如何设置 Node，NPM，Yarn 和 <code>package.json</code>。</p>
 
-<h2>排版不仅是锦上添花</h2>
+<h3>大家好</h3>
 
-<p>2006 年，我开始写博客，当时信奉的是内容是核心，排版并不重要。但自从 2008 年看了一些与<a href="https://kenengba.com/post/476.html">屏幕阅读体验</a>相关的研究报告后，我开始重视排版，开始在博客上尝试不同的排版方式。不能说我的排版是最好看的，但在小圈子内，是受到关注的。如果你在 Google 搜索「可能吧 排版」，可以找到不少别人研究当年我如何排版的文章。</p>
+<p>首先需要安装 Node，它提供了后端 JavaScript 的运行环境，同时还包括构建前端技术栈所需的所有工具。</p>
 
-<p>我在「有可能学院」里有一个主讲课程《微信内容运营》，在这个课程里我定义了一种新岗位：<strong>内容经理</strong>。</p>
+<p>macOS 或 Windows 用户可以直接<a href="https://nodejs.org/en/download/current/">下载安装文件</a>，Linux 用户可以通过<a href="https://nodejs.org/en/download/package-manager/">包管理器安装</a>。</p>
 
-<h3>不要涉及完全不了解的话题</h3>
+<p>例如，在 <strong>Ubuntu / Debian</strong> 上，您可以运行以下命令来安装 Node：</p>
+
+<pre><code>curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+sudo apt-get install -y nodejs</code></pre>
+
+<p>你需要大于 6.5.0 的 Node 版本。</p>
+
+<p><code>npm</code> 是 Node 的默认包管理器，不需要手动安装。</p>
+
+<p><strong>注意</strong>：如果你之前已经安装过 Node，可以使用 <code>nvm</code> (<a href="https://github.com/creationix/nvm">Node Version Manager</a>) 安装最新版本的 Node。</p>
+
+<p><a href="https://yarnpkg.com/">Yarn</a> 是另一个包管理器，它比 NPM 快许多，而且能离线缓存，在包的依赖管理上更可靠。Yarn 于 2016 年 10 月 <a href="https://code.facebook.com/posts/1840075619545360">发布</a> 以来就获得了广泛的使用，正在成为 JavaScript 社区选择的新的包管理器。我们将在本教程中使用 Yarn。如果你想使用 NPM，用 <code>npm install --save</code> 和 <code>npm install --dev</code> 分别替换 <code>yarn add</code> 和 <code>yarn add —dev</code> 命令即可。</p>
+
+<ul><li>按照<a href="https://yarnpkg.com/en/docs/install">这个说明</a>安装 Yarn。你可以使用 <code>npm install -g yarn</code> 或 <code>sudo npm install -g yarn</code> 安装它（是的，我们可以使用NPM来安装Yarn，就像使用 Internet Explorer 或 Safari 安装Chrome 一样！）。</li><li>创建一个新文件夹，并 <code>cd</code> 到文件夹中。</li><li>运行 <code>yarn init</code>，并按照提示输入一些字段（使用 <code>yarn init -y</code> 可以跳过输入字段的环节），将自动生成一个 <code>package.json</code> 文件。</li><li>新建 <code>index.js</code> 文件，内容为 <code>console.log(&#39;Hello world&#39;)</code>。</li><li>在当前文件夹下运行 <code>node .</code>（Node 默认会去找当前文件夹下的 <code>index.js</code>）。将打印 “Hello world”。</li></ul>
+
+<p>运行 <code>node .</code> 可能有点太容易了。我们将使用 NPM / Yarn 脚本来触发代码的执行。这样做的好处是，即使我们的程序变得更复杂，也能使用简单的一个命令 <code>yarn start</code> 来运行整个程序。</p>
+
+<ul><li>在 <code>package.json</code> 中增加 <code>scripts</code> 字段如下：</li></ul>
+
+<p><code>
+&quot;scripts&quot;: {
+  &quot;start&quot;: &quot;node .&quot;
+}
+</code></p>
+
+<p><code>package.json</code> 必须是有效的 JSON 文件，这意味着不能使用尾逗号。手动编辑 <code>package.json</code> 文件时要注意这一点。</p>
+
+<ul><li>运行 <code>yarn start</code>，将打印 <code>Hello world</code>。</li><li>新建一个 <code>.gitignore</code> 文件，增加以下内容：</li></ul>
+
+<p><code>
+npm-debug.log
+yarn-error.log
+</code></p>
+
+<p><strong>注意</strong>：你可能注意到每章的 <code>package.json</code> 文件都有一个 <code>tutorial-test</code> 脚本。这些脚本是用于测试的，确保 <code>yarn &amp;&amp; yarn start</code> 运行正确。你可以在自己的项目中删除它们。</p>
+
+<p>下一章：<a href="/tutorial/2-packages">2 - 包的安装与使用</a></p>
+
+<p>回到<a href="https://github.com/pd4d10/js-stack-from-scratch">目录</a></p>
                 </div>
               </article>
             </div>
           </div>
      </body>
+     <script src="http://cdn.bootcss.com/highlight.js/8.0/highlight.min.js" charset="utf-8"></script>
+     <script charset="utf-8">
+     hljs.initHighlightingOnLoad();
+     </script>
 </html>
   
