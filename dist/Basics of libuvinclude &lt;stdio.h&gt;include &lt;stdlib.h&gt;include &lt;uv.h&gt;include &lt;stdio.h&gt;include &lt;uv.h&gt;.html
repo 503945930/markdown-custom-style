@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
-     <head>
-      <title>我是这样写博客的</title>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-      <style type="text/css">
-      /*! normalize.css v2.1.3 | MIT License | git.io/normalize */
+  <html>
+       <head>
+        <title>Basics of libuvinclude &lt;stdio.h&gt;include &lt;stdlib.h&gt;include &lt;uv.h&gt;include &lt;stdio.h&gt;include &lt;uv.h&gt;</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <link href="//cdn.bootcss.com/highlight.js/9.7.0/styles/vs.min.css" rel="stylesheet">
+        <style type="text/css">
+        /*! normalize.css v2.1.3 | MIT License | git.io/normalize */
 
 article, aside, details, figcaption, figure, footer, header, hgroup, main, nav, section, summary {
   display: block;
@@ -512,7 +513,7 @@ code, kbd, pre, samp {
 code {
   padding: 2px 4px;
   font-size: 90%;
-  color: #c7254e;
+  color: #17900a;
   white-space: nowrap;
   background-color: #f9f2f4;
   border-radius: 4px;
@@ -5726,31 +5727,199 @@ margin-right: 10px;
 	color: #42C994;
 }
 
-      </style>
-      </head>
-      <body  class="basic">
-        <div class="container">
-            <div class="row">
-              <article class="col-md-12 no-featured-image post-3507 post type-post status-publish format-standard hentry category-skills tag-83 tag-620 tag-383 tag-286" >
-                <h1 class="entry-title">我是这样写博客的</h1>
-                <div class="entry-content">
-                  
+        </style>
+        </head>
+        <body  class="basic">
+          <div class="container">
+              <div class="row">
+                <article class="col-md-12 no-featured-image post-3507 post type-post status-publish format-standard hentry category-skills tag-83 tag-620 tag-383 tag-286" >
+                  <h1 class="entry-title">Basics of libuvinclude &lt;stdio.h&gt;include &lt;stdlib.h&gt;include &lt;uv.h&gt;include &lt;stdio.h&gt;include &lt;uv.h&gt;</h1>
+                  <div class="entry-content">
+                    
 
-<p>我发现，不管我写微信公众号哪篇文章，都会有读者在留言区问我，我的文章是用什么编辑器排版的，我的回答都是，市面上的微信排版器我都不用，不是因为它们设计得不好看，而是所有的排版器都不符合写作的规律。</p>
+<p>libuv强制使用异步的，事件驱动的编程风格。它的核心工作是提供一个event-loop，还有基于I/O和其它事件通知的回调函数。libuv还提供了一些核心工具，例如定时器，非阻塞的网络支持，异步文件系统访问，子进程等。  </p>
 
-<p>这篇文章，会告诉你我的文章都是如何排版出来的。</p>
+<h2>Event loops</h2>
 
-<h2>排版不仅是锦上添花</h2>
+<p>在事件驱动编程中，程序会关注每一个事件，并且对每一个事件的发生做出反应。libuv会负责将来自操作系统的事件收集起来，或者监视其他来源的事件。这样，用户就可以注册回调函数，回调函数会在事件发生的时候被调用。event-loop会一直保持运行状态。用伪代码描述如下：  </p>
 
-<p>2006 年，我开始写博客，当时信奉的是内容是核心，排版并不重要。但自从 2008 年看了一些与<a href="https://kenengba.com/post/476.html">屏幕阅读体验</a>相关的研究报告后，我开始重视排版，开始在博客上尝试不同的排版方式。不能说我的排版是最好看的，但在小圈子内，是受到关注的。如果你在 Google 搜索「可能吧 排版」，可以找到不少别人研究当年我如何排版的文章。</p>
+<p><code>c
+while there are still events to process:
+    e = get the next event
+    if there is a callback associated with e:
+        call the callback
+</code></p>
 
-<p>我在「有可能学院」里有一个主讲课程《微信内容运营》，在这个课程里我定义了一种新岗位：<strong>内容经理</strong>。</p>
+<p>举几个事件的例子：  </p>
 
-<h3>不要涉及完全不了解的话题</h3>
-                </div>
-              </article>
+<blockquote><ul><li>准备好被写入的文件。  </li><li>包含准备被读取的数据的socket。  </li><li>超时的定时器。  </li></ul></blockquote>
+
+<p>event-loop最终会被<code>uv_run()</code>启动－当使用libuv时，最后都会调用的函数。  </p>
+
+<p>系统编程中最经常处理的一般是输入和输出，而不是一大堆的数据处理。问题在于传统的输入／输出函数(例如<code>read</code>，<code>fprintf</code>)都是阻塞式的。实际上，向文件写入数据，从网络读取数据所花的时间，对比cpu的处理速度差得太多。任务没有完成，函数是不会返回的，所以你的程序在这段时间内什么也做不了。对于需要高性能的的程序来说，这是一个主要的障碍。  </p>
+
+<p>其中一个标准的解决方案是使用多线程。每一个阻塞的I/O操作都会被分配到各个线程中（或者是使用线程池）。当某个线程一旦阻塞，处理器就可以调度处理其他需要cpu资源的线程。  </p>
+
+<p>但是libuv使用了另外一个解决方案，那就是异步，非阻塞。大多数的现代操作系统提供了基于事件通知的子系统。例如，一个正常的socket上的<code>read</code>调用会发生阻塞，直到发送方把信息发送过来。但是，实际上程序可以请求操作系统监视socket事件的到来，并将这个事件通知放到事件队列中。这样，程序就可以很简单地检查事件是否到来（可能此时正在使用cpu做数值处理的运算），并及时地获取数据。说libuv是异步的，是因为程序可以在一头表达对某一事件的兴趣，并在另一头获取到数据（对于时间或是空间来说）。它是非阻塞是因为应用程序无需在请求数据后等待，可以自由地做其他的事。libuv的事件循环方式很好地与该模型匹配, 因为操作系统事件可以视为另外一种libuv事件. 非阻塞方式可以保证在其他事件到来时被尽快处理（当然还要考虑硬件的能力）。  </p>
+
+<h3>Note</h3>
+
+<blockquote><p>我们不需要关心I/O在后台是如何工作的，但是由于我们的计算机硬件的工作方式，线程是处理器最基本的执行单元，libuv和操作系统通常会运行后台/工作者线程, 或者采用非阻塞方式来轮流执行任务。  </p></blockquote>
+
+<p>Bert Belder，一个libuv的核心开发者，通过一个短视频向我们解释了libuv的架构和它的后台工作方式。如果你之前没有接触过类似libuv，libev，这个视频会非常有用。视频的网址是https://youtu.be/nGn60vDSxQ4 。</p>
+
+<p>包含了libuv的event-loop的更多详细信息的<a href="http://docs.libuv.org/en/v1.x/design.html#the-i-o-loop">文档</a>。  </p>
+
+<h2>HELLO WORLD</h2>
+
+<p>让我们开始写第一个libuv程序吧！它什么都没做，只是开启了一个loop，然后很快地退出了。  </p>
+
+<h3>helloworld/main.c</h3>
+
+<p><code></code>`c</p>
+
+
+
+
+
+
+
+<p>int main() {
+    uv<em>loop</em>t *loop = malloc(sizeof(uv<em>loop</em>t));
+    uv<em>loop</em>init(loop);</p>
+
+<pre><code>printf(&quot;Now quitting.\n&quot;);
+uv_run(loop, UV_RUN_DEFAULT);
+
+uv_loop_close(loop);
+free(loop);
+return 0;</code></pre>
+
+<p>}
+<code></code>`</p>
+
+<p>这个程序会很快就退出了，因为没有可以很处理的事件。我们可以使用各种API函数来告诉event-loop我们要监视的事件。  </p>
+
+<p>从libuv的1.0版本开始，用户就可以在使用<code>uv_loop_init</code>初始化loop之前，给其分配相应的内存。这就允许你植入自定义的内存管理方法。记住要使用<code>uv_loop_close(uv_loop_t *)</code>关闭loop，然后再回收内存空间。在例子中，程序退出的时候会关闭loop，系统也会自动回收内存。对于长时间运行的程序来说，合理释放内存很重要。   </p>
+
+<h3>Default loop</h3>
+
+<p>可以使用<code>uv_default_loop</code>获取libuv提供的默认loop。如果你只需要一个loop的话，可以使用这个。  </p>
+
+<h3>Note</h3>
+
+<blockquote><p>nodejs中使用了默认的loop作为自己的主loop。如果你在编写nodejs的绑定，你应该注意一下。  </p></blockquote>
+
+<h2>Error handling</h2>
+
+<p>初始化函数或者是同步执行的函数，会在执行失败后返回代表错误的负数。但是对于异步执行的函数，会在执行失败的时候，给它们的回调函数传递一个状态参数。错误信息被定义为<code>UV_E</code><a href="http://docs.libuv.org/en/v1.x/errors.html#error-constants">常量</a>。  </p>
+
+<p>你可以使用<code>uv_strerror(int)</code>和<code>uv_err_name(int)</code>分别获取<code>const char *</code>格式的错误信息和错误名字。  </p>
+
+<p>I/O函数的回调函数（例如文件和socket等）会被传递一个<code>nread</code>参数。如果<code>nread</code>小于0，就代表出现了错误（当然，UV_EOF是读取到文件末端的错误，你要特殊处理）。  </p>
+
+<h2>Handles and Requests</h2>
+
+<p>libuv的工作建立在用户表达对特定事件的兴趣。这通常通过创造对应I/O设备，定时器，进程等的handle来实现。handle是不透明的数据结构，其中对应的类型<code>uv_TYPE_t</code>中的type指定了handle的使用目的。  </p>
+
+<h3>libuv watchers</h3>
+
+<p><code></code>`c
+/<em> Handle types. </em>/
+typedef struct uv<em>loop</em>s uv<em>loop</em>t;
+typedef struct uv<em>handle</em>s uv<em>handle</em>t;
+typedef struct uv<em>stream</em>s uv<em>stream</em>t;
+typedef struct uv<em>tcp</em>s uv<em>tcp</em>t;
+typedef struct uv<em>udp</em>s uv<em>udp</em>t;
+typedef struct uv<em>pipe</em>s uv<em>pipe</em>t;
+typedef struct uv<em>tty</em>s uv<em>tty</em>t;
+typedef struct uv<em>poll</em>s uv<em>poll</em>t;
+typedef struct uv<em>timer</em>s uv<em>timer</em>t;
+typedef struct uv<em>prepare</em>s uv<em>prepare</em>t;
+typedef struct uv<em>check</em>s uv<em>check</em>t;
+typedef struct uv<em>idle</em>s uv<em>idle</em>t;
+typedef struct uv<em>async</em>s uv<em>async</em>t;
+typedef struct uv<em>process</em>s uv<em>process</em>t;
+typedef struct uv<em>fs</em>event<em>s uv</em>fs<em>event</em>t;
+typedef struct uv<em>fs</em>poll<em>s uv</em>fs<em>poll</em>t;
+typedef struct uv<em>signal</em>s uv<em>signal</em>t;</p>
+
+<p>/<em> Request types. </em>/
+typedef struct uv<em>req</em>s uv<em>req</em>t;
+typedef struct uv<em>getaddrinfo</em>s uv<em>getaddrinfo</em>t;
+typedef struct uv<em>getnameinfo</em>s uv<em>getnameinfo</em>t;
+typedef struct uv<em>shutdown</em>s uv<em>shutdown</em>t;
+typedef struct uv<em>write</em>s uv<em>write</em>t;
+typedef struct uv<em>connect</em>s uv<em>connect</em>t;
+typedef struct uv<em>udp</em>send<em>s uv</em>udp<em>send</em>t;
+typedef struct uv<em>fs</em>s uv<em>fs</em>t;
+typedef struct uv<em>work</em>s uv<em>work</em>t;</p>
+
+<p>/<em> None of the above. </em>/
+typedef struct uv<em>cpu</em>info<em>s uv</em>cpu<em>info</em>t;
+typedef struct uv<em>interface</em>address<em>s uv</em>interface<em>address</em>t;
+typedef struct uv<em>dirent</em>s uv<em>dirent</em>t;
+<code></code>`</p>
+
+<p>handle代表了持久性对象。在异步的操作中，相应的handle上有许多与之关联的request。request是短暂性对象（通常只维持在一个回调函数的时间），通常对映着handle上的一个I/O操作。request用来在初始函数和回调函数之间，传递上下文。例如uv<em>udp</em>t代表了一个udp的socket，然而，对于每一个向socket的写入的完成后，都会向回调函数传递一个<code>uv_udp_send_t</code>。  </p>
+
+<p>handle可以通过下面的函数设置：  </p>
+
+<p><code>c
+uv_TYPE_init(uv_loop_t *, uv_TYPE_t *)
+</code></p>
+
+<p>回调函数是libuv所关注的事件发生后，所调用的函数。应用程序的特定逻辑会在回调函数中实现。例如，一个IO监视器的回调函数会接收到从文件读取到的数据，一个定时器的回调函数会在超时后被触发等等。  </p>
+
+<h3>Idling</h3>
+
+<p>下面有一个使用空转handle的例子。回调函数在每一个循环中都会被调用。在Utilities这部分会讲到一些空转handle的使用场景。现在让我们使用一个空转监视器，然后来观察它的生命周期，接着看<code>uv_run</code>调用是否会造成阻塞。当达到事先规定好的计数后，空转监视器会退出。因为<code>uv_run</code>已经找不到活着的事件监视器了，所以<code>uv_run()</code>也退出。  </p>
+
+<h3>idle-basic/main.c</h3>
+
+<p><code></code>`c</p>
+
+
+
+
+
+<p>int64_t counter = 0;</p>
+
+<p>void wait<em>for</em>a<em>while(uv</em>idle_t* handle) {
+    counter++;</p>
+
+<pre><code>if (counter &gt;= 10e6)
+    uv_idle_stop(handle);</code></pre>
+
+<p>}</p>
+
+<p>int main() {
+    uv<em>idle</em>t idler;</p>
+
+<pre><code>uv_idle_init(uv_default_loop(), &amp;idler);
+uv_idle_start(&amp;idler, wait_for_a_while);
+
+printf(&quot;Idling...\n&quot;);
+uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+
+uv_loop_close(uv_default_loop());
+return 0;</code></pre>
+
+<p>}</p>
+
+<p><code></code>`</p>
+
+<h3>Storing context</h3>
+
+<p>在基于回调函数的编程风格中，你可能会需要在调用处和回调函数之间，传递一些上下文等特定的应用信息。所有的handle和request都有一个<code>data</code>域，可以用来存储信息并传递。这是一个c语言库中很常见的模式。即使是<code>uv_loop_t</code>也有一个相似的<code>data</code>域。	  </p>
+                  </div>
+                </article>
+              </div>
             </div>
-          </div>
-     </body>
-</html>
-  
+       </body>
+       <script src="http://cdn.bootcss.com/highlight.js/8.0/highlight.min.js" charset="utf-8"></script>
+       <script charset="utf-8">
+       hljs.initHighlightingOnLoad();
+       </script>
+  </html>
+    
